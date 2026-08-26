@@ -1,0 +1,30 @@
+{
+  "name": "ochodamas",
+  "version": "1.0.6",
+  "private": true,
+  "description": "8 Damas — puzzle de las ocho reinas para Android",
+  "author": "8 Damas",
+  "scripts": {
+    "prepare:www": "node scripts/prepare-www.js",
+    "icons": "node scripts/generate-icons.js",
+    "patch:android": "node scripts/patch-android.js",
+    "sync": "node scripts/prepare-www.js && npx cap sync android && node scripts/patch-android.js",
+    "apk": "node scripts/build-android.js",
+    "aab": "node scripts/build-android.js --aab"
+  },
+  "dependencies": {
+    "@capacitor/android": "7.6.8",
+    "@capacitor/app": "7.1.2",
+    "@capacitor/clipboard": "7.0.4",
+    "@capacitor/core": "7.6.8",
+    "@capacitor/haptics": "7.0.5",
+    "@capacitor/keyboard": "7.0.6",
+    "@capacitor/share": "7.0.4",
+    "@capacitor/splash-screen": "7.0.5",
+    "@capacitor/status-bar": "7.0.6"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "7.6.8",
+    "@resvg/resvg-js": "^2.6.2"
+  }
+}

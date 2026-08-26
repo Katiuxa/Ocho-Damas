@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="felt" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1c3d2a"/>
+      <stop offset="100%" stop-color="#0e1a12"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0.25" y1="0" x2="0.75" y2="1">
+      <stop offset="0%" stop-color="#ffe9a0"/>
+      <stop offset="45%" stop-color="#e0c36a"/>
+      <stop offset="100%" stop-color="#a8842a"/>
+    </linearGradient>
+    <linearGradient id="ivory" x1="0.3" y1="0.1" x2="0.7" y2="0.95">
+      <stop offset="0%" stop-color="#fff6e4"/>
+      <stop offset="55%" stop-color="#f0e2c4"/>
+      <stop offset="100%" stop-color="#c9b48a"/>
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="248" fill="url(#felt)"/>
+  <circle cx="256" cy="256" r="232" fill="none" stroke="url(#gold)" stroke-width="14"/>
+  <circle cx="256" cy="256" r="208" fill="none" stroke="rgba(224,195,106,0.28)" stroke-width="6"/>
+  <g transform="translate(256 268) scale(4.6) translate(-22.5 -24)">
+    <path fill="url(#ivory)" stroke="#3a2414" stroke-width="1.2" stroke-linejoin="round"
+      d="M9,26 C17.5,24.5 30,24.5 36,26 L38.5,13.5 L31,25 L30.7,10.9 L25.5,24.5 L22.5,10 L19.5,24.5 L14.3,10.9 L14,25 L6.5,13.5 L9,26 z"/>
+    <path fill="url(#ivory)" stroke="#3a2414" stroke-width="1.2" stroke-linejoin="round"
+      d="M9,26 C9,28 10.5,28 11.5,30 C12.5,31.5 12.5,31 12,33.5 C10.5,34.5 11,36 11,36 C9.5,37.5 11,38.5 11,38.5 C17.5,39.5 27.5,39.5 34,38.5 C34,38.5 35.5,37.5 34,36 C34,36 34.5,34.5 33,33.5 C32.5,31 32.5,31.5 33.5,30 C34.5,28 36,28 36,26 C27.5,24.5 17.5,24.5 9,26 z"/>
+    <circle cx="6" cy="12" r="2.2" fill="url(#gold)" stroke="#5a3d10" stroke-width="0.9"/>
+    <circle cx="14" cy="9" r="2.2" fill="url(#gold)" stroke="#5a3d10" stroke-width="0.9"/>
+    <circle cx="22.5" cy="8" r="2.45" fill="url(#gold)" stroke="#5a3d10" stroke-width="0.9"/>
+    <circle cx="31" cy="9" r="2.2" fill="url(#gold)" stroke="#5a3d10" stroke-width="0.9"/>
+    <circle cx="39" cy="12" r="2.2" fill="url(#gold)" stroke="#5a3d10" stroke-width="0.9"/>
+  </g>
+</svg>

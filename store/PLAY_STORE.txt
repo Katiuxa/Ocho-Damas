@@ -1,0 +1,31 @@
+8 DAMAS — ficha para Google Play (gratis)
+========================================
+
+Paquete: com.metamovidas.ochodamas
+Nombre: 8 Damas
+Desarrollador: 8damas.com
+Precio: Gratis
+Categoría: Puzzle
+Sitio: https://8damas.com
+Privacidad: www/privacy.html (subirla también a 8damas.com/privacy)
+
+Esta ficha es SOLO del juego 8 Damas.
+Petteia y Latrunculi van cada uno en su propia app / ficha de Play Store.
+
+Título corto (30): 8 Damas
+Título (50): 8 Damas
+Descripción breve (80): El clásico de las 8 reinas. Normal, problema y contrarreloj.
+
+Descripción (ES):
+El problema de las 8 damas: coloca las reinas en el tablero de modo que ninguna ataque a otra.
+
+• Modo normal
+• Modo problema (damas fijas de una solución)
+• Contrarreloj: 1, 3 o 5 minutos
+• Tableros 8×8, 9×9, 10×10 y 11×11
+• Ranking mundial (el mismo de 8damas.com)
+• Español, inglés, francés y alemán
+
+Gratis.
+
+Notas: ranking Firebase damas-2cfdf, igual que la web.
