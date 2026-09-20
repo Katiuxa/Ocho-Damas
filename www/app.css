@@ -16,6 +16,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
+  touch-action: manipulation;
   min-height: 100%;
   min-height: 100dvh;
   background: var(--felt);
@@ -54,13 +55,18 @@ body.is-home { overflow-y: auto; }
   height: calc(50px + env(safe-area-inset-bottom, 0px));
   pointer-events: none;
 }
-html.ads-live #ad-slot { display: block; }
-html.ads-live #screen-home {
-  padding-bottom: calc(var(--inset-bottom) + var(--ad-banner-height) + 1rem);
+html.has-ad-banner #screen-home {
+  padding-bottom: calc(var(--inset-bottom) + var(--ad-banner-h, 50px) + var(--metamo-h, 0px) + 1rem);
 }
-html.ads-live #screen-play {
-  padding-bottom: calc(var(--inset-bottom) + var(--ad-banner-height));
+html.has-ad-banner #screen-play {
+  padding-bottom: calc(var(--ad-safe-bottom, 0px) + var(--ad-banner-h, 50px) + var(--metamo-h, 0px) + 0.45rem);
 }
+html.is-native .home-top,
+html.is-native .play-brand {
+  padding-left: 0.45rem;
+  padding-right: 0.45rem;
+}
+#ad-slot { display: none !important; }
 .screen[hidden], [hidden] { display: none !important; }
 
 #screen-home {
@@ -178,6 +184,9 @@ html.ads-live #screen-play {
   gap: 0.75rem;
   flex: 1;
   align-content: start;
+}
+.mode-grid .mode-card:last-child {
+  grid-column: 1 / -1;
 }
 .mode-card {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem;
@@ -355,7 +364,7 @@ html.is-web .play-audio {
   display: flex;
 }
 
-/* App: board higher, Help/Clear below, compact & centered. */
+/* App: board + controls vertically centered; Help/Clear below board. */
 html.is-native .home-help-btn { display: none !important; }
 html.is-native .home-audio { display: flex; }
 html.is-native #screen-home {
@@ -373,12 +382,37 @@ html.is-native .hud {
   min-height: 44px;
   padding: 0 0.1rem 0.55rem;
   margin-bottom: 0.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+html.is-native .play-noads-host {
+  display: flex;
+  align-items: center;
+  min-width: 42px;
+  min-height: 42px;
+}
+html.is-native .home-audio .lat-ad-noads-fab,
+html.is-native .play-noads-host .lat-ad-noads-fab {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--gold);
+  border: 0;
+  font-size: 0.52rem !important;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
 }
 html.is-native .board-stage {
   width: min(460px, 100%);
-  place-items: start center;
-  padding-top: 0.55rem;
-  align-content: start;
+  flex: 1;
+  min-height: 0;
+  place-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+  align-content: center;
+  justify-content: center;
 }
 html.is-native .board-stack {
   gap: 0.55rem;
@@ -1091,7 +1125,7 @@ body.web-pc #play-bar {
 }
 body.web-pc .pc-mode-grid {
   display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.5rem;
 }
 body.web-pc .pc-mode-btn {

@@ -3,7 +3,6 @@
 
   var SHARE_URL = "https://8damas.com";
   var QUEEN_IMG = (typeof window !== "undefined" && window.OCHO_QUEEN_SRC) ? window.OCHO_QUEEN_SRC : "img/queen-piece.png";
-  var firebaseConfig = window.OCHO_FIREBASE_CONFIG || null;
 
   var traducciones = {
     es: {
@@ -290,7 +289,6 @@
   };
 
   var idiomaActual = "es";
-  var db = null;
   var damas = [];
   var damasFijas = [];
   var conflictos = [];
@@ -306,7 +304,6 @@
   var cuentaAtrasIniciada = false;
   var tableroBloqueado = false;
   var tablerosResueltos = 0;
-  var pendingScore = null;
   var audioCtx = null;
   var ayudaNormal = localStorage.getItem("ochodamas.help") !== "0";
 
@@ -318,13 +315,6 @@
   var resultado = document.getElementById("resultado");
   var cronometro = document.getElementById("cronometro");
   var compartirFinal = document.getElementById("compartirFinal");
-
-  try {
-    if (window.firebase && firebaseConfig && firebaseConfig.apiKey) {
-      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-      db = firebase.database();
-    }
-  } catch (e) {}
 
   function t() { return traducciones[idiomaActual] || traducciones.es; }
 
@@ -414,7 +404,10 @@
     document.getElementById("screen-home").hidden = false;
     document.body.classList.add("is-home");
     document.body.classList.remove("is-play");
-    try { if (window.OchoDamasAds) window.OchoDamasAds.onScreen("home"); } catch (e) {}
+    try {
+      if (window.GameAds && typeof window.GameAds.onScreen === "function") window.GameAds.onScreen("home");
+      else if (window.OchoDamasAds && typeof window.OchoDamasAds.onScreen === "function") window.OchoDamasAds.onScreen("home");
+    } catch (e) {}
   }
 
   function showPlay() {
@@ -428,7 +421,13 @@
       sizeBoard();
       requestAnimationFrame(sizeBoard);
     });
-    try { if (window.OchoDamasAds) window.OchoDamasAds.onScreen("play"); } catch (e) {}
+    try {
+      if (window.GameAds && typeof window.GameAds.onScreen === "function") window.GameAds.onScreen("play");
+      else if (window.OchoDamasAds && typeof window.OchoDamasAds.onScreen === "function") window.OchoDamasAds.onScreen("play");
+    } catch (e) {}
+    try {
+      if (window.GameAds && typeof window.GameAds.onMatchStart === "function") window.GameAds.onMatchStart();
+    } catch (eAds) {}
   }
 
   function updatePlayLabel() {
@@ -627,6 +626,9 @@
         resultado.innerHTML = s.compartirResultado + " " + m + "m " + sec + "s.";
         document.getElementById("btn-share-result").hidden = false;
         compartirFinal.hidden = false;
+        try {
+          if (window.GameAds && typeof window.GameAds.onMatchEnd === "function") window.GameAds.onMatchEnd();
+        } catch (eAds) {}
       }
     } else {
       mensaje.textContent = "";
@@ -782,7 +784,6 @@
       intervalo = null;
       cronometro.classList.add("danger");
       mensaje.textContent = t().tiempoAgotado + " " + tablerosResueltos + " " + t().tablero;
-      if (tablerosResueltos >= 2) openNameModal();
       modoContrarreloj = false;
       modoContrarrelojActivo = false;
       juegoEnCurso = false;
@@ -790,61 +791,6 @@
       document.getElementById("reiniciarContrarreloj").hidden = false;
       try { if (window.OchoDamasAds) window.OchoDamasAds.onGameEnd(); } catch (e) {}
     }, 1000);
-  }
-
-  function rankingKey(size, duration) {
-    return "ranking/" + size + "x" + size + "_" + duration + "s";
-  }
-
-  function mostrarRanking() {
-    var list = document.getElementById("rankingLista");
-    var size = document.getElementById("rankingTamano").value;
-    var duration = document.getElementById("rankingTiempo").value;
-    list.innerHTML = "<em>" + t().cargando + "</em>";
-    if (!db) {
-      list.innerHTML = "<em>" + t().sinPuntuaciones + "</em>";
-      return;
-    }
-    db.ref(rankingKey(size, duration)).orderByChild("puntuacion").limitToLast(20).once("value", function (snapshot) {
-      var datos = [];
-      snapshot.forEach(function (child) { datos.push(child.val()); });
-      datos.sort(function (a, b) { return b.puntuacion - a.puntuacion; });
-      if (!datos.length) {
-        list.innerHTML = "<em>" + t().sinPuntuaciones + "</em>";
-        return;
-      }
-      var html = "<ol>";
-      datos.forEach(function (d) {
-        html += "<li><strong>" + escapeHtml(d.nombre || "?") + "</strong>: " + (d.puntuacion || 0) + "</li>";
-      });
-      html += "</ol>";
-      list.innerHTML = html;
-    });
-  }
-
-  function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, function (ch) {
-      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch];
-    });
-  }
-
-  function guardarEnRanking(nombre, size, duration, score) {
-    if (!db) return;
-    db.ref(rankingKey(size, duration)).push({ nombre: nombre, puntuacion: score }, function (error) {
-      if (error) return;
-      document.getElementById("rankingTamano").value = String(size);
-      document.getElementById("rankingTiempo").value = String(duration);
-      document.getElementById("sheet-rank").hidden = false;
-      mostrarRanking();
-    });
-  }
-
-  function openNameModal() {
-    pendingScore = { size: tamanoTablero, duration: tiempoOriginalContrarreloj, score: tablerosResueltos };
-    var input = document.getElementById("player-name");
-    input.value = localStorage.getItem("ochodamas.player") || "";
-    document.getElementById("name-modal").hidden = false;
-    setTimeout(function () { input.focus(); }, 50);
   }
 
   function abrirRedSocial(red, url, texto) {
@@ -893,14 +839,10 @@
     if (normalSub) normalSub.textContent = s.modoNormalSub || "";
     document.getElementById("desafioSub").textContent = s.desafioSub;
     document.getElementById("modoContrarrelojSub").textContent = s.modoContrarrelojSub;
-    document.getElementById("rank-card-name").textContent = s.rankingTitulo;
-    document.getElementById("rank-card-sub").textContent = s.rankingSub;
     document.getElementById("pc-problem-name").textContent = s.pcDesafio || s.modoProblema;
     document.getElementById("pc-problem-sub").textContent = s.desafioSub;
     document.getElementById("pc-timed-name").textContent = s.pcTipo || s.modoContrarreloj;
     document.getElementById("pc-timed-sub").textContent = s.pcTipoSub || s.modoContrarrelojSub;
-    document.getElementById("pc-ranking-name").textContent = s.rankingTitulo;
-    document.getElementById("pc-ranking-sub").textContent = s.rankingSub;
     document.getElementById("pc-how-name").textContent = s.howBannerTitle;
     document.getElementById("home-credit").textContent = s.homeCredit;
     var playCredit = document.getElementById("play-credit");
@@ -917,16 +859,9 @@
     document.getElementById("how-timed-text").textContent = s.howTimedText;
     document.getElementById("time-title").textContent = s.timeTitle;
     document.getElementById("size-title").textContent = s.sizeTitle;
-    document.getElementById("rank-title").textContent = s.rankingTitulo;
     document.getElementById("reset").textContent = s.vaciar;
     document.getElementById("reiniciarContrarreloj").textContent = s.reiniciar;
     document.getElementById("btn-share-result").textContent = s.compartir;
-    document.getElementById("lbl-rank-size").textContent = s.rankingTamano;
-    document.getElementById("lbl-rank-time").textContent = s.rankingDuracion;
-    document.getElementById("name-title").textContent = s.nameTitle;
-    document.getElementById("name-hint").textContent = s.nameHint;
-    document.getElementById("name-save").textContent = s.save;
-    document.getElementById("name-skip").textContent = s.skip;
     document.getElementById("pick-60").textContent = s.unMinuto;
     document.getElementById("pick-180").textContent = s.tresMinutos;
     document.getElementById("pick-300").textContent = s.cincoMinutos;
@@ -941,8 +876,9 @@
   }
 
   function closeSheets() {
-    ["sheet-how", "sheet-time", "sheet-size", "sheet-rank", "name-modal"].forEach(function (id) {
-      document.getElementById(id).hidden = true;
+    ["sheet-how", "sheet-time", "sheet-size"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.hidden = true;
     });
   }
 
@@ -1103,10 +1039,6 @@
   document.getElementById("pc-timed-btn").addEventListener("click", function () {
     document.getElementById("sheet-time").hidden = false;
   });
-  document.getElementById("pc-ranking-btn").addEventListener("click", function () {
-    document.getElementById("sheet-rank").hidden = false;
-    mostrarRanking();
-  });
   document.getElementById("pc-how-btn").addEventListener("click", function () {
     document.getElementById("sheet-how").hidden = false;
   });
@@ -1153,12 +1085,6 @@
     document.getElementById("btn-share-result").hidden = true;
     actualizarEstado();
   });
-  document.getElementById("botonRanking").addEventListener("click", function () {
-    document.getElementById("sheet-rank").hidden = false;
-    mostrarRanking();
-  });
-  document.getElementById("rankingTamano").addEventListener("change", mostrarRanking);
-  document.getElementById("rankingTiempo").addEventListener("change", mostrarRanking);
   document.getElementById("btn-share-result").addEventListener("click", function () {
     var m = Math.floor(tiempo / 60);
     var sec = tiempo % 60;
@@ -1168,18 +1094,6 @@
         abrirRedSocial("whatsapp", SHARE_URL, resultado.textContent);
       });
     } else abrirRedSocial("whatsapp", SHARE_URL, resultado.textContent);
-  });
-  document.getElementById("name-skip").addEventListener("click", function () {
-    document.getElementById("name-modal").hidden = true;
-    pendingScore = null;
-  });
-  document.getElementById("name-save").addEventListener("click", function () {
-    var name = (document.getElementById("player-name").value || "").trim().slice(0, 24);
-    if (!name || !pendingScore) return;
-    localStorage.setItem("ochodamas.player", name);
-    guardarEnRanking(name, pendingScore.size, pendingScore.duration, pendingScore.score);
-    document.getElementById("name-modal").hidden = true;
-    pendingScore = null;
   });
   window.addEventListener("resize", function () {
     if (isWeb()) {
@@ -1192,7 +1106,7 @@
   window.DamasConsumeBack = function () {
     var lang = document.querySelector(".lang-menu:not([hidden])");
     if (lang) { closeLangMenu(); return true; }
-    var ids = ["name-modal", "sheet-rank", "sheet-how", "sheet-time", "sheet-size"];
+    var ids = ["sheet-how", "sheet-time", "sheet-size"];
     for (var i = 0; i < ids.length; i++) {
       var el = document.getElementById(ids[i]);
       if (el && !el.hidden) { el.hidden = true; return true; }
@@ -1209,8 +1123,17 @@
   if (stored && traducciones[stored]) idiomaActual = stored;
   else if (document.documentElement.classList.contains("is-web") && traducciones.ru) idiomaActual = "ru";
   else {
-    var nav = (navigator.language || "es").slice(0, 2);
-    if (traducciones[nav]) idiomaActual = nav;
+    var list = [];
+    try {
+      if (navigator.languages) {
+        for (var li = 0; li < navigator.languages.length; li++) list.push(navigator.languages[li]);
+      }
+    } catch (e) {}
+    try { if (navigator.language) list.push(navigator.language); } catch (e) {}
+    for (var ni = 0; ni < list.length; ni++) {
+      var nav = String(list[ni] || "").slice(0, 2);
+      if (traducciones[nav]) { idiomaActual = nav; break; }
+    }
   }
   cambiarIdioma(idiomaActual);
   if (isWeb()) {

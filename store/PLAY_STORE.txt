@@ -1,16 +1,13 @@
-8 DAMAS — ficha para Google Play (gratis)
+8 DAMAS — ficha para Google Play (gratis, con publicidad)
 ========================================
 
 Paquete: com.metamovidas.ochodamas
 Nombre: 8 Damas
-Desarrollador: 8damas.com
+Desarrollador: Metamovidas
 Precio: Gratis
 Categoría: Puzzle
 Sitio: https://8damas.com
-Privacidad: www/privacy.html (subirla también a 8damas.com/privacy)
-
-Esta ficha es SOLO del juego 8 Damas.
-Petteia y Latrunculi van cada uno en su propia app / ficha de Play Store.
+Privacidad: https://8damas.com/privacy  (sube www/privacy.html)
 
 Título corto (30): 8 Damas
 Título (50): 8 Damas
@@ -26,6 +23,12 @@ El problema de las 8 damas: coloca las reinas en el tablero de modo que ninguna 
 • Ranking mundial (el mismo de 8damas.com)
 • Español, inglés, francés y alemán
 
-Gratis.
+Gratis, con un banner inferior solo dentro de cada modo de juego. El menú principal no tiene anuncios.
 
-Notas: ranking Firebase damas-2cfdf, igual que la web.
+Play Console:
+• Sube el AAB (no el APK).
+• Declara que la app contiene anuncios.
+• Permiso AD_ID: sí.
+• Contenido: PEGI 3 / Everyone.
+AdMob app: ca-app-pub-8973581015975783~8190174684
+Banner:    ca-app-pub-8973581015975783/1160013270

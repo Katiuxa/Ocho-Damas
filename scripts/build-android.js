@@ -46,11 +46,13 @@ run("node", ["scripts/patch-android.js"]);
 run("node", ["scripts/generate-icons.js"]);
 
 const gw = process.platform === "win32" ? "gradlew.bat" : "./gradlew";
-run(gw, ["assembleRelease"], ANDROID);
-if (wantAab) run(gw, ["bundleRelease"], ANDROID);
+run(gw, ["assembleRelease", "bundleRelease"], ANDROID);
 
 const pkg = require(path.join(ROOT, "package.json"));
 const ver = String(pkg.version || "1.0.1");
+
+const APKS = path.join("C:", "Users", "carlo", "Desktop", "Proyectos", "Android", "APKs");
+const PLAY = path.join("C:", "Users", "carlo", "Desktop", "Proyectos", "Android", "PlayStore", "OchoDamas");
 
 fs.mkdirSync(OUT, { recursive: true });
 copyIf(
@@ -60,5 +62,13 @@ copyIf(
 copyIf(
   path.join(ANDROID, "app", "build", "outputs", "bundle", "release", "app-release.aab"),
   path.join(OUT, "OchoDamas-" + ver + ".aab")
+);
+copyIf(
+  path.join(OUT, "OchoDamas-" + ver + ".apk"),
+  path.join(APKS, "OchoDamas-" + ver + "-con-publicidad.apk")
+);
+copyIf(
+  path.join(OUT, "OchoDamas-" + ver + ".aab"),
+  path.join(PLAY, "OchoDamas-" + ver + ".aab")
 );
 console.log("Listo en " + OUT + " (v" + ver + ")");

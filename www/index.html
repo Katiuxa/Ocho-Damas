@@ -2,15 +2,16 @@
 <html lang="es" class="is-web">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#0e1a12" />
-  <meta name="description" content="8 Damas — el problema de las ocho reinas. Normal, problema, contrarreloj y ranking." />
+  <meta name="description" content="8 Damas — el problema de las ocho reinas. Normal, problemas y contrarreloj." />
   <title>8 DAMAS</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="apple-touch-icon" href="favicon.png" />
   <link rel="stylesheet" href="fonts/fonts.css" />
   <link rel="stylesheet" href="app.css" />
+  <link rel="stylesheet" href="css/ads.css" />
 </head>
 <body class="is-home">
   <div class="felt"></div>
@@ -80,17 +81,12 @@
         <span class="mode-name" id="modoContrarreloj">Contrarreloj</span>
         <span class="mode-sub" id="modoContrarrelojSub">Resuelve la mayor cantidad de tableros</span>
       </button>
-      <button type="button" class="mode-card teal" id="botonRanking">
-        <span class="mode-ico">🏆</span>
-        <span class="mode-name" id="rank-card-name">Ranking</span>
-        <span class="mode-sub" id="rank-card-sub">Mejores tiempos</span>
-      </button>
     </div>
 
     <button type="button" class="mode-card how-banner" id="card-how">
       <span class="mode-name" id="how-banner-title">Cómo jugar</span>
     </button>
-    <p class="home-foot" id="home-credit">Made with ❤️ by Metamovidas</p>
+    <p class="home-foot" id="home-credit">Made with <span aria-hidden="true">❤️</span> by Metamovidas</p>
   </section>
 
   <section id="screen-play" class="screen" hidden>
@@ -139,6 +135,7 @@
 
     <header class="hud">
       <button type="button" class="icon-btn" id="btn-home" aria-label="Menú">‹</button>
+      <div class="play-noads-host" id="play-noads-host"></div>
     </header>
 
     <p id="play-mode-label" class="play-label"></p>
@@ -182,11 +179,6 @@
           </span>
           <span class="mode-name" id="pc-timed-name">Contrarreloj</span>
           <span class="mode-sub" id="pc-timed-sub">Resuelve la mayor cantidad de tableros</span>
-        </button>
-        <button type="button" class="mode-card teal pc-mode-btn" id="pc-ranking-btn">
-          <span class="mode-ico">🏆</span>
-          <span class="mode-name" id="pc-ranking-name">Ranking</span>
-          <span class="mode-sub" id="pc-ranking-sub">Mejores tiempos</span>
         </button>
       </div>
       <button type="button" class="mode-card how-banner pc-how-banner" id="pc-how-btn">
@@ -248,43 +240,6 @@
     </div>
   </div>
 
-  <div class="sheet" id="sheet-rank" hidden>
-    <div class="sheet-card">
-      <button type="button" class="sheet-x" data-close="sheet-rank">×</button>
-      <h2 id="rank-title">Ranking</h2>
-      <div class="rank-filters">
-        <label><span id="lbl-rank-size">Tablero</span>
-          <select id="rankingTamano">
-            <option value="8" selected>8×8</option>
-            <option value="9">9×9</option>
-            <option value="10">10×10</option>
-            <option value="11">11×11</option>
-          </select>
-        </label>
-        <label><span id="lbl-rank-time">Duración</span>
-          <select id="rankingTiempo">
-            <option value="60">1 min</option>
-            <option value="180">3 min</option>
-            <option value="300">5 min</option>
-          </select>
-        </label>
-      </div>
-      <div id="rankingLista"></div>
-    </div>
-  </div>
-
-  <div class="sheet" id="name-modal" hidden>
-    <div class="sheet-card">
-      <h2 id="name-title">¡Buen trabajo!</h2>
-      <p id="name-hint">Escribe tu nombre para el ranking:</p>
-      <input id="player-name" maxlength="24" />
-      <div class="modal-actions">
-        <button type="button" id="name-skip">Cancelar</button>
-        <button type="button" id="name-save">Guardar</button>
-      </div>
-    </div>
-  </div>
-
   <select id="tamano" hidden>
     <option value="8" selected>8</option>
     <option value="9">9</option>
@@ -301,11 +256,8 @@
 
   <div id="ad-slot" hidden aria-hidden="true"></div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script src="firebase-config.local.js"></script>
-  <script src="firebase-config.js"></script>
-  <script src="js/ads.js"></script>
+  <script src="js/ads-config.js"></script>
+  <script src="js/ads-manager.js"></script>
   <script src="js/bridge.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/queen-data.js"></script>

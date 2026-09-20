@@ -4,7 +4,7 @@
     ? window.Capacitor.isNativePlatform()
     : window.Capacitor.Plugins));
   if (native) {
-    document.documentElement.classList.add("is-native");
+    document.documentElement.classList.add("is-native", "android-app");
     document.documentElement.classList.remove("is-web");
   }
 
@@ -41,6 +41,7 @@
 
     if (App && App.addListener) {
       App.addListener("backButton", function () {
+        if (window.GameAds && window.GameAds.consumeBack && window.GameAds.consumeBack()) return;
         if (typeof window.DamasConsumeBack === "function" && window.DamasConsumeBack()) return;
         if (App.exitApp) App.exitApp();
       });
