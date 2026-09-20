@@ -50,7 +50,6 @@ async function downloadFonts() {
 
 async function main() {
   await downloadFonts();
-  require("./generate-music.js");
   console.log("www listo");
 }
 

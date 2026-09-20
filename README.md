@@ -1,14 +1,20 @@
 # 8 Damas
 
-Problema de las ocho reinas. Web (`www/`) + Android.
+Puzzle de las ocho reinas.
 
-**Jugar:** https://katiuxa.github.io/Ocho-Damas/
+## Web
 
-Pages publica la carpeta `www`.
+https://katiuxa.github.io/Ocho-Damas/
 
-El ranking usa Firebase solo si defines `window.OCHO_FIREBASE_CONFIG` (copia `www/firebase-config.example.js`). Las claves no van en el repositorio.
+Código web en `www/` y `docs/`.
+
+## Android
+
+Capacitor en `android/`. Versión **1.0.19**.
 
 ```bash
 npm ci
 npm run apk
 ```
+
+Keystore de Play Store fuera de git.

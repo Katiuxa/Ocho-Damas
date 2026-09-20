@@ -1,6 +1,11 @@
 www/firebase-config.local.js
+docs/firebase-config.local.js
 node_modules/
 dist-android/
+dist-netlify/
+*.zip
+con-publicidad/
+sin-publicidad/
 android/app/build/
 android/.gradle/
 android/local.properties

@@ -1,8 +1,8 @@
 {
   "name": "ochodamas",
-  "version": "1.0.6",
+  "version": "1.0.19",
   "private": true,
-  "description": "8 Damas — puzzle de las ocho reinas para Android",
+  "description": "8 Damas - puzzle de las ocho reinas para Android",
   "author": "8 Damas",
   "scripts": {
     "prepare:www": "node scripts/prepare-www.js",

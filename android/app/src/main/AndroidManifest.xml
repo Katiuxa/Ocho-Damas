@@ -3,7 +3,9 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
     <uses-feature android:name="android.hardware.touchscreen" android:required="true" />
 
@@ -26,11 +28,11 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="false">
 
-        <!-- AdMob más adelante:
+        <!-- AdMob App ID (strings.xml → admob_app_id). Must use "~", not "/". -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy" />
-        -->
+            android:value="@string/admob_app_id" />
+
 
         <activity
             android:name=".MainActivity"

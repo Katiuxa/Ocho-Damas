@@ -16,6 +16,18 @@ const APP_VERSION = String(PKG_JSON.version || "1.0.1");
 const VERSION_PARTS = APP_VERSION.split(".").map(function (n) { return parseInt(n, 10) || 0; });
 const VERSION_CODE = (VERSION_PARTS[0] || 0) * 10000 + (VERSION_PARTS[1] || 0) * 100 + (VERSION_PARTS[2] || 0);
 
+function adsIdsFromConfig() {
+  const cfgPath = path.join(ROOT, "www", "js", "ads-config.js");
+  const s = fs.existsSync(cfgPath) ? fs.readFileSync(cfgPath, "utf8") : "";
+  const appId = ((s.match(/appId:\s*"([^"]+)"/) || [])[1] || "").trim();
+  const bannerId = ((s.match(/bannerId:\s*"([^"]+)"/) || [])[1] || "").trim();
+  const ready = appId.indexOf("~") !== -1
+    && appId.indexOf("PEGA") === -1
+    && bannerId.indexOf("/") !== -1
+    && bannerId.indexOf("PEGA") === -1;
+  return { appId, bannerId, ready };
+}
+
 function write(file, text) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, text);
@@ -99,6 +111,12 @@ android {`
   }
   s = s.replace(/versionCode \d+/, "versionCode " + VERSION_CODE);
   s = s.replace(/versionName "[^"]+"/, 'versionName "' + APP_VERSION + '"');
+  if (!s.includes("play-services-ads")) {
+    s = s.replace(
+      "implementation project(':capacitor-android')",
+      "implementation project(':capacitor-android')\n    implementation \"com.google.android.gms:play-services-ads:$playServicesAdsVersion\"\n    implementation \"com.android.billingclient:billing:7.1.1\""
+    );
+  }
   fs.writeFileSync(appGradle, s);
   console.log("edit android/app/build.gradle (" + APP_VERSION + " / " + VERSION_CODE + ")");
 }
@@ -110,6 +128,8 @@ function patchManifest() {
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+    <uses-permission android:name="com.android.vending.BILLING" />
 
     <uses-feature android:name="android.hardware.touchscreen" android:required="true" />
 
@@ -132,11 +152,12 @@ function patchManifest() {
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="false">
 
-        <!-- AdMob más adelante:
+        ${adsIdsFromConfig().ready ? `<!-- AdMob App ID (strings.xml → admob_app_id). Must use "~", not "/". -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy" />
-        -->
+            android:value="@string/admob_app_id" />
+` : `<!-- AdMob APPLICATION_ID se añade al pegar los IDs reales en ads-config.js -->
+`}
 
         <activity
             android:name=".MainActivity"
@@ -196,6 +217,19 @@ function patchStrings() {
   s = s.replace(/<string name="title_activity_main">[^<]+<\/string>/, `<string name="title_activity_main">${APP_NAME}</string>`);
   s = s.replace(/<string name="package_name">[^<]+<\/string>/, `<string name="package_name">${PKG}</string>`);
   s = s.replace(/<string name="custom_url_scheme">[^<]+<\/string>/, `<string name="custom_url_scheme">${PKG}</string>`);
+  const ads = adsIdsFromConfig();
+  const appId = ads.ready ? ads.appId : "PEGA_AQUI_EL_APP_ID_DE_ESTE_JUEGO";
+  const bannerId = ads.ready ? ads.bannerId : "PEGA_AQUI_EL_BANNER_ID_DE_ESTE_JUEGO";
+  if (/<string name="admob_app_id">/.test(s)) {
+    s = s.replace(/<string name="admob_app_id">[^<]*<\/string>/, `<string name="admob_app_id">${appId}</string>`);
+  } else {
+    s = s.replace("</resources>", `    <string name="admob_app_id">${appId}</string>\n</resources>`);
+  }
+  if (/<string name="admob_banner_id">/.test(s)) {
+    s = s.replace(/<string name="admob_banner_id">[^<]*<\/string>/, `<string name="admob_banner_id">${bannerId}</string>`);
+  } else {
+    s = s.replace("</resources>", `    <string name="admob_banner_id">${bannerId}</string>\n</resources>`);
+  }
   fs.writeFileSync(file, s);
 }
 
@@ -221,7 +255,7 @@ function patchStyles() {
     </style>
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/splash_bg</item>
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_icon</item>
         <item name="windowSplashScreenIconBackgroundColor">@color/splash_bg</item>
         <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
         <item name="android:background">@drawable/splash</item>
@@ -242,18 +276,35 @@ function copyIcons() {
   const { Resvg } = require("@resvg/resvg-js");
   const logoPath = path.join(ROOT, "www", "img", "logo-circle.svg");
   const svg = fs.readFileSync(logoPath, "utf8");
-  function raster(size) {
-    const out = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 512 512">${svg.replace(/<svg[^>]*>/, "").replace("</svg>", "")}</svg>`;
+  const logoInner = svg.replace(/<svg[^>]*>/, "").replace("</svg>", "");
+
+  function rasterFull(size) {
+    const out = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 512 512">${logoInner}</svg>`;
     return new Resvg(out, { fitTo: { mode: "width", value: size } }).render().asPng();
   }
+
+  // Circular logo inset on a transparent canvas so Android's squircle/circle
+  // mask never clips the gold ring into a square.
+  function rasterInset(canvasSize, fraction) {
+    const logo = Math.round(canvasSize * fraction);
+    const x = (canvasSize - logo) / 2;
+    const out = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvasSize}" height="${canvasSize}" viewBox="0 0 ${canvasSize} ${canvasSize}">
+      <svg x="${x}" y="${x}" width="${logo}" height="${logo}" viewBox="0 0 512 512">${logoInner}</svg>
+    </svg>`;
+    return new Resvg(out, {
+      fitTo: { mode: "width", value: canvasSize },
+      background: "rgba(0,0,0,0)"
+    }).render().asPng();
+  }
+
   const dens = { "mipmap-mdpi": 48, "mipmap-hdpi": 72, "mipmap-xhdpi": 96, "mipmap-xxhdpi": 144, "mipmap-xxxhdpi": 192 };
+  const fgDens = { "mipmap-mdpi": 108, "mipmap-hdpi": 162, "mipmap-xhdpi": 216, "mipmap-xxhdpi": 324, "mipmap-xxxhdpi": 432 };
   for (const [folder, size] of Object.entries(dens)) {
     const dir = path.join(SRC, "res", folder);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, "ic_launcher.png"), raster(size));
-    fs.writeFileSync(path.join(dir, "ic_launcher_round.png"), raster(size));
-    // Foreground with padding so adaptive splash stays circular and crisp.
-    fs.writeFileSync(path.join(dir, "ic_launcher_foreground.png"), raster(Math.round(size * 1.35)));
+    fs.writeFileSync(path.join(dir, "ic_launcher.png"), rasterFull(size));
+    fs.writeFileSync(path.join(dir, "ic_launcher_round.png"), rasterFull(size));
+    fs.writeFileSync(path.join(dir, "ic_launcher_foreground.png"), rasterInset(fgDens[folder], 0.62));
   }
   const anyDpi = path.join(SRC, "res", "mipmap-anydpi-v26");
   fs.mkdirSync(anyDpi, { recursive: true });
@@ -265,19 +316,34 @@ function copyIcons() {
 `;
   fs.writeFileSync(path.join(anyDpi, "ic_launcher.xml"), adaptive);
   fs.writeFileSync(path.join(anyDpi, "ic_launcher_round.xml"), adaptive);
+  const capacitorFg = path.join(SRC, "res", "drawable-v24", "ic_launcher_foreground.xml");
+  if (fs.existsSync(capacitorFg)) fs.unlinkSync(capacitorFg);
+  const capacitorBg = path.join(SRC, "res", "drawable", "ic_launcher_background.xml");
+  if (fs.existsSync(capacitorBg)) fs.unlinkSync(capacitorBg);
   write(path.join(SRC, "res", "values", "ic_launcher_background.xml"), `<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#0E1A12</color>
 </resources>
 `);
+
+  // Dedicated splash glyph: extra inset so OEM rounded-square masks keep the ring intact.
+  const splashIconDens = {
+    drawable: 240,
+    "drawable-mdpi": 240,
+    "drawable-hdpi": 360,
+    "drawable-xhdpi": 480,
+    "drawable-xxhdpi": 720,
+    "drawable-xxxhdpi": 960
+  };
+  for (const [folder, size] of Object.entries(splashIconDens)) {
+    const dir = path.join(SRC, "res", folder);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "ic_splash_icon.png"), rasterInset(size, 0.48));
+  }
+
   function splashPng(w, h) {
-    const logo = Math.min(w, h) * 0.42;
     const svgSplash = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
       <rect width="${w}" height="${h}" fill="#0e1a12"/>
-      <svg x="${(w - logo) / 2}" y="${(h - logo) / 2 - h * 0.04}" width="${logo}" height="${logo}" viewBox="0 0 512 512">
-        ${svg.replace(/<svg[^>]*>/, "").replace("</svg>", "")}
-      </svg>
-      <text x="${w / 2}" y="${h / 2 + logo / 2 + h * 0.04}" text-anchor="middle" fill="#e0c36a" font-family="sans-serif" font-size="${Math.round(h * 0.045)}" font-weight="700">8 DAMAS</text>
     </svg>`;
     return new Resvg(svgSplash, { fitTo: { mode: "width", value: w } }).render().asPng();
   }
@@ -300,38 +366,12 @@ function copyIcons() {
 
 function patchMainActivity() {
   const javaDir = path.join(SRC, "java", ...PKG.split("."));
-  write(path.join(javaDir, "MainActivity.java"), `package ${PKG};
-
-import android.os.Bundle;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import com.getcapacitor.BridgeActivity;
-
-public class MainActivity extends BridgeActivity {
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        try {
-            WebView webView = this.getBridge().getWebView();
-            if (webView != null) {
-                WebSettings settings = webView.getSettings();
-                settings.setMediaPlaybackRequiresUserGesture(false);
-            }
-        } catch (Exception ignored) {}
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        try {
-            WebView webView = this.getBridge().getWebView();
-            if (webView != null) {
-                webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-            }
-        } catch (Exception ignored) {}
-    }
-}
-`);
+  const file = path.join(javaDir, "MainActivity.java");
+  if (fs.existsSync(file) && /AdView|AdsManager/.test(fs.readFileSync(file, "utf8"))) {
+    console.log("keep MainActivity.java (native banner below WebView)");
+    return;
+  }
+  console.warn("MainActivity.java missing native banner — leaving as-is");
 }
 
 function main() {
@@ -352,6 +392,9 @@ function main() {
     s = s.replace(/minSdkVersion = \d+/, "minSdkVersion = 24");
     s = s.replace(/compileSdkVersion = \d+/, "compileSdkVersion = 35");
     s = s.replace(/targetSdkVersion = \d+/, "targetSdkVersion = 35");
+    if (!s.includes("playServicesAdsVersion")) {
+      s = s.replace("}", "    playServicesAdsVersion = '23.6.0'\n}");
+    }
     fs.writeFileSync(vars, s);
   }
   console.log("Android parcheado");

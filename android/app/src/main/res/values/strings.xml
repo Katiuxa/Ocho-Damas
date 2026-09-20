@@ -4,4 +4,6 @@
     <string name="title_activity_main">8 Damas</string>
     <string name="package_name">com.metamovidas.ochodamas</string>
     <string name="custom_url_scheme">com.metamovidas.ochodamas</string>
+    <string name="admob_app_id">ca-app-pub-8973581015975783~8190174684</string>
+    <string name="admob_banner_id">ca-app-pub-8973581015975783/1160013270</string>
 </resources>
