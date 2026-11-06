@@ -4,7 +4,7 @@ Puzzle de las ocho reinas.
 
 ## Web
 
-https://katiuxa.github.io/Ocho-Damas/
+https://8damas.com
 
 Código web en `www/` y `docs/`.
 
