@@ -1,34 +1,34 @@
-8 DAMAS — ficha para Google Play (gratis, con publicidad)
+8 DAMAS — Google Play listing (free, with ads)
 ========================================
 
-Paquete: com.metamovidas.ochodamas
-Nombre: 8 Damas
-Desarrollador: Metamovidas
-Precio: Gratis
-Categoría: Puzzle
-Sitio: https://8damas.com
-Privacidad: https://8damas.com/privacy  (sube www/privacy.html)
+Package: com.metamovidas.ochodamas
+Name: 8 Damas
+Developer: Metamovidas
+Price: Free
+Category: Puzzle
+Site: https://8damas.vercel.app
+Privacy: https://8damas.vercel.app/privacy  (upload www/privacy.html)
 
-Título corto (30): 8 Damas
-Título (50): 8 Damas
-Descripción breve (80): El clásico de las 8 reinas. Normal, problema y contrarreloj.
+Short title (30): 8 Damas
+Title (50): 8 Damas
+Short description (80): The classic eight queens puzzle. Normal, problem, and time attack.
 
-Descripción (ES):
-El problema de las 8 damas: coloca las reinas en el tablero de modo que ninguna ataque a otra.
+Description:
+The eight queens problem: place the queens so that none attacks another.
 
-• Modo normal
-• Modo problema (damas fijas de una solución)
-• Contrarreloj: 1, 3 o 5 minutos
-• Tableros 8×8, 9×9, 10×10 y 11×11
-• Ranking mundial (el mismo de 8damas.com)
-• Español, inglés, francés y alemán
+• Normal mode
+• Problem mode (fixed queens taken from a solution)
+• Time attack: 1, 3, or 5 minutes
+• Boards 8×8, 9×9, 10×10, and 11×11
+• Worldwide ranking (the same one as 8damas.vercel.app)
+• Spanish, English, French, and German
 
-Gratis, con un banner inferior solo dentro de cada modo de juego. El menú principal no tiene anuncios.
+Free, with a bottom banner only inside each game mode. The main menu has no ads.
 
 Play Console:
-• Sube el AAB (no el APK).
-• Declara que la app contiene anuncios.
-• Permiso AD_ID: sí.
-• Contenido: PEGI 3 / Everyone.
+• Upload the AAB (not the APK).
+• Declare that the app contains ads.
+• AD_ID permission: yes.
+• Content rating: PEGI 3 / Everyone.
 AdMob app: ca-app-pub-8973581015975783~8190174684
 Banner:    ca-app-pub-8973581015975783/1160013270

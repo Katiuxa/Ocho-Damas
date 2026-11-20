@@ -1,20 +1,20 @@
 # 8 Damas
 
-Puzzle de las ocho reinas.
+Eight queens puzzle.
 
 ## Web
 
-https://8damas.com
+https://8damas.vercel.app
 
-Código web en `www/` y `docs/`.
+Web code is in `www/` and `docs/`.
 
 ## Android
 
-Capacitor en `android/`. Versión **1.0.19**.
+Capacitor, in `android/`. Version **1.0.19**.
 
 ```bash
 npm ci
 npm run apk
 ```
 
-Keystore de Play Store fuera de git.
+The Play Store keystore stays outside git.
